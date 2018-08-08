@@ -13,6 +13,7 @@ public class D2_PipeAndTx extends BasicTest {
 
     @Test
     public void testNormal() {
+        jedis.flushDB();
         long t1 = System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {
             jedis.set("p" + i, i + "");
@@ -28,6 +29,7 @@ public class D2_PipeAndTx extends BasicTest {
      */
     @Test
     public void testPipeline() {
+        jedis.flushDB();
         Pipeline p = jedis.pipelined();
         long t1 = System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {
@@ -46,6 +48,7 @@ public class D2_PipeAndTx extends BasicTest {
      */
     @Test
     public void testTx() {
+        jedis.flushDB();
         Transaction mutil = jedis.multi();
         long t1 = System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {
@@ -53,12 +56,24 @@ public class D2_PipeAndTx extends BasicTest {
         }
         mutil.exec();
         long t2 = System.currentTimeMillis();
-
+        System.out.print("事务操作: ");
         System.out.println(t2 - t1);
     }
 
     @Test
+    public void testPipeAndTx() {
+        jedis.flushDB();
+
+    }
+
+    @Test
+    public void test() {
+
+    }
+    @Test
     public void testPipeVsTx() {
+        testNormal();
+
         // 使用管道命令执行1000次
         testPipeline();
 
