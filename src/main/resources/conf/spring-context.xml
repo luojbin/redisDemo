@@ -12,15 +12,15 @@
     <context:annotation-config/>
 
     <!-- 自动加载构建bean -->
-    <context:component-scan base-package="com.luojbin.redis"/>
+    <context:component-scan base-package="com.loyofo.redis"/>
 
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
-        <property name="driverClassName" value="${jdbc.mysql.jdbcdriver}"/>
-        <property name="jdbcUrl" value="${jdbc.mysql.url}"/>
-        <property name="username" value="${jdbc.mysql.username}"/>
-        <property name="password" value="${jdbc.mysql.password}"/>
-        <property name="maximumPoolSize" value="${jdbc.maximumPoolSize}"/>
-        <property name="minimumIdle" value="${jdbc.minimumIdle}"/>
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUrl" value="jdbc:mysql://47.106.82.153:3306/redis_demo?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;"/>
+        <property name="username" value="redis"/>
+        <property name="password" value="redis"/>
+        <property name="maximumPoolSize" value="100"/>
+        <property name="minimumIdle" value="10"/>
         <property name="dataSourceProperties">
             <props>
                 <prop key="cachePrepStmts">true</prop>
@@ -36,16 +36,12 @@
             <ref bean="dataSource"/>
         </property>
         <property name="fetchSize">
-            <value>${jdbcTemplate.fetchSize}</value>
+            <value>200</value>
         </property>
     </bean>
 
     <bean id="transactionManager"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
-    </bean>
-
-    <bean id="jdbcDao" class="com.luojbin.redis.dao.JdbcDao">
-        <property name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
 </beans>
