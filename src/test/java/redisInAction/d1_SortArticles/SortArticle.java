@@ -5,9 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author luojbin
@@ -48,6 +46,7 @@ public class SortArticle{
     public void testInit() {
         // jedis.flushDB();
         // 初始化数据
+        jedis.set("articleId", "10000");
         System.out.println(jedis.keys("*"));
     }
 
@@ -56,7 +55,8 @@ public class SortArticle{
      */
     @Test
     public void testPublish() {
-        String articleId = "" + 0004;
+
+        String articleId = "" + jedis.incr("articleId");
         String author = "luojbin";
         String body = "这是一篇文章, 关于: "+ articleId;
 
@@ -73,10 +73,28 @@ public class SortArticle{
         jedis.sadd(VOTED_USER + articleId, "" );
 
         // 把文章添加到 发布时间 zset
-        jedis.zadd(PUBLISH_TIME_ZSET, System.currentTimeMillis()/1000.0 ,ARTICLE + articleId);
+        jedis.zadd(PUBLISH_TIME_ZSET, System.currentTimeMillis()/1000 ,ARTICLE + articleId);
 
         // 把文章添加到 文章分数 zset
-        jedis.zadd(ARTICLE_SCORE_ZSET, System.currentTimeMillis()/1000.0, ARTICLE + articleId);
+        jedis.zadd(ARTICLE_SCORE_ZSET, System.currentTimeMillis()/1000, ARTICLE + articleId);
+    }
+
+    @Test
+    public void testGetArticles() {
+        // 在指定的 zset 中, 获取排名在 [start, end] 范围内的成员 key (文章id)
+        Set<String> ids = jedis.zrevrange(PUBLISH_TIME_ZSET, 0, -1);
+        // 根据文章ids, 遍历查出文章 hash
+        for (String id : ids){
+            Map<String,String> articleData = jedis.hgetAll(id);
+            articleData.put("id", id);
+            System.out.println("这是一篇文章: " + id);
+            for (Map.Entry<String,String> entry : articleData.entrySet()){
+                if (entry.getKey().equals("id")){
+                    continue;
+                }
+                System.out.println("    " + entry.getKey() + ": " + entry.getValue());
+            }
+        }
     }
 
     /**
@@ -84,7 +102,7 @@ public class SortArticle{
      */
     @Test
     public void testVoteUp() {
-        String articleId = "";
+        String articleId = "10003";
 
     }
 
