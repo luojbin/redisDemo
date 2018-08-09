@@ -18,7 +18,8 @@ public class BasicTest {
         // 创建连接, 并清空所有库
         jedis = new Jedis("47.106.82.153",6379);
         jedis.auth("luojbin2Redis");
-        jedis.flushAll();
+        jedis.select(3);
+        jedis.flushDB();
 
         // // 添加预设数据
         // // string-string
