@@ -1,9 +1,11 @@
 package Demo;
 
 import org.junit.Test;
+import redis.clients.jedis.Tuple;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author luojbin
@@ -94,7 +96,7 @@ public class D1_BasicTypes extends BasicTest {
 
     @Test
     public void testHash() {
-        // hset : hash + set
+        // hset : hash set
         System.out.println(jedis.hset("key_hash", "field_1", "1"));
         System.out.println(jedis.hset("key_hash", "field_2", "2"));
         System.out.println(jedis.hset("key_hash", "field_3", "3"));
@@ -102,16 +104,16 @@ public class D1_BasicTypes extends BasicTest {
         // hget : hash + get, 获取 hash 中某个 field 的 value
         System.out.println(jedis.hget("key_hash", "field_1"));
 
-        // hmset : hash + multi + set, 同时设置多个 field, jedis 中直接使用 Map 作为参数, 以保证 key-value 成对出现
+        // hmset : hash multi set, 同时设置多个 field, jedis 中直接使用 Map 作为参数, 以保证 key-value 成对出现
         Map<String, String> map = new HashMap<>();
         map.put("hmset_field1", "hmset_val1");
         map.put("hmset_field2", "hmset_val2");
         System.out.println(jedis.hmset("key_hmset", map));
 
-        // hgetall : hash + getAll, 返回一个 Map
+        // hgetall : hash getAll, 返回一个 Map
         System.out.println(jedis.hgetAll("key_hash"));
 
-        // hlen : hash + length
+        // hlen : hash length
         System.out.println(jedis.hlen("key_hash"));
         System.out.println(jedis.hlen("key_hmset"));
 
@@ -124,20 +126,20 @@ public class D1_BasicTypes extends BasicTest {
 
     @Test
     public void testSet() {
-        // sadd : set + add , 往集合中添加元素, jedis 中使用变长参数列表, 允许一次添加多个
+        // sadd : set add , 往集合中添加元素, jedis 中使用变长参数列表, 允许一次添加多个
         System.out.println(jedis.sadd("key_set", "val1", "val2", "val3"));
 
-        // smembers : set + members, 获取集合中所有元素
+        // smembers : set members, 获取集合中所有元素
         System.out.println(jedis.smembers("key_set"));
 
-        // sismember : set + isMember, 检查某个元素是否在集合内
+        // sismember : set isMember, 检查某个元素是否在集合内
         System.out.println(jedis.sismember("key_set", "val1"));
         System.out.println(jedis.sismember("key_set", "val4"));
 
-        // scard: set + cardinality, 获取 set 内的元素个数
+        // scard: set cardinality, 获取 set 内的元素个数
         System.out.println(jedis.scard("key_set"));
 
-        // spop: set + pop, 随机弹出 set 中的一个元素
+        // spop: set pop, 随机弹出 set 中的一个元素
         System.out.println(jedis.smembers("key_set"));
         System.out.println(jedis.spop("key_set"));
         System.out.println(jedis.smembers("key_set"));
@@ -149,19 +151,42 @@ public class D1_BasicTypes extends BasicTest {
 
     @Test
     public void testZset() {
-        // zadd : zset + add, 在 zset 中添加元素, 需要指定分值
+        // zadd : zset add, 在 zset 中添加元素, 需要指定分值
         System.out.println(jedis.zadd("key_zset", 1, "val1"));
         System.out.println(jedis.zadd("key_zset", 2, "val2"));
         System.out.println(jedis.zadd("key_zset", 3, "val3"));
         System.out.println(jedis.zadd("key_zset", 2.1, "val2.1"));
         System.out.println(jedis.zadd("key_zset", 1.8, "val1.8"));
 
-        // zrange : zset + range, 根据分值升序排列, 获取序号在闭区间 [a, b] 内的元素, 且 a 必须在 b 前面, 否则为空
+        // zscore : zset score, 获取 zset 中指定元素的分值
+        System.out.println(jedis.zscore("key_zset", "val3"));
+        System.out.println(jedis.zscore("key_zset", "val1.8"));
+
+        // zrank : zset rank, 获取某个元素在 zset 中按升序排列的下标, 从 0 开始
+        System.out.println(jedis.zrank("key_zset", "val3"));
+        System.out.println(jedis.zrank("key_zset", "val1"));
+
+        // zrange : zset range, 根据分值升序排列, 获取序号在闭区间 [a, b] 内的元素, 且 a 必须在 b 前面, 否则为空
         System.out.println(jedis.zrange("key_zset", 0, -1));
         System.out.println(jedis.zrange("key_zset", -1, 0));
 
         // zrevrange : zset reverse range, 根据分值降序排列, 获取 [a, b] 内的元素
         System.out.println(jedis.zrevrange("key_zset", 0, -1));
+
+        // zrangeByScore : zset range by score, 根据分值的闭区间 [a, b], 获取多个元素
+        System.out.println(jedis.zrangeByScore("key_zset", 0, 2));
+
+        // zrangeByScoreWithScores : zset range by score with score,
+        // 根据分值的闭区间 [a, b], 获取多个元素以及对应的分值, 返回 Set<Tuple> 格式
+        Set<Tuple> tupleSet = jedis.zrangeByScoreWithScores("key_zset", 0, 2);
+        for(Tuple t : tupleSet){
+            System.out.println(t.getElement() + ", " + t.getScore());
+        }
+
+        // zrem : zset remove, 从 zset 中移除元素, jedis 使用变长参数, 可移除多个元素
+        System.out.println(jedis.zrange("key_zset", 0, -1));
+        System.out.println(jedis.zrem("key_zset", "val1", "val1.8"));
+        System.out.println(jedis.zrange("key_zset", 0, -1));
     }
 
     @Test
