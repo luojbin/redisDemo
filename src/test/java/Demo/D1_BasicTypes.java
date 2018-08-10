@@ -2,6 +2,9 @@ package Demo;
 
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author luojbin
  * @version 1.0
@@ -57,7 +60,14 @@ public class D1_BasicTypes extends BasicTest {
 
     @Test
     public void testList() {
-        // redis 的 list 是个双端链表, 使用 push 进队, pop 离队, 并结合 l/r 对 队首/队尾 操作
+        /*  redis 的 list 是个双端链表, 使用 push 进队, pop 离队, 并结合 l/r 对 队首/队尾 操作
+         *  这里的 l 是 left, 与 right 对应, 表示队首和队尾, 并不是 list 的意思
+         *
+         *  list 的其他方法 l+命令, 这里的 l 表示 list
+         *       index:  获取某个下标的元素
+         *       range:  获取指定下标范围的元素, 闭区间 [a, b]
+         *       trim:   根据下标范围裁剪 list, 只保留闭区间 [a, b]
+         */
 
         // 左进左出
         System.out.println("lpush & lpop");
@@ -78,16 +88,37 @@ public class D1_BasicTypes extends BasicTest {
         System.out.println(jedis.lindex("key_list", 1));
 
         // ltrim 对list 进行截取, [a, b], 保留闭区间内的元素, 负数表示倒数第几个元素
-        System.out.println(jedis.ltrim("key_list", 1,2));
+        System.out.println(jedis.ltrim("key_list", 1, 2));
         System.out.println(jedis.lrange("key_list", 0, -1));
-
-
-
     }
 
     @Test
     public void testHash() {
+        // hset : hash + set
+        System.out.println(jedis.hset("key_hash", "field_1", "1"));
+        System.out.println(jedis.hset("key_hash", "field_2", "2"));
+        System.out.println(jedis.hset("key_hash", "field_3", "3"));
 
+        // hget : hash + get, 获取 hash 中某个 field 的 value
+        System.out.println(jedis.hget("key_hash", "field_1"));
+
+        // hmset : hash + multi + set, 同时设置多个 field, jedis 中直接使用 Map 作为参数, 以保证 key-value 成对出现
+        Map<String, String> map = new HashMap<>();
+        map.put("hmset_field1", "hmset_val1");
+        map.put("hmset_field2", "hmset_val2");
+        System.out.println(jedis.hmset("key_hmset", map));
+
+        // hgetall : hash + getAll, 返回一个 Map
+        System.out.println(jedis.hgetAll("key_hash"));
+
+        // hlen : hash + length
+        System.out.println(jedis.hlen("key_hash"));
+        System.out.println(jedis.hlen("key_hmset"));
+
+        // 与 string 类似, 可以使用 incrBy 或 incrByFloat 对 value 进行增减, 没有 incr
+        System.out.println(jedis.hincrBy("key_hash", "field_1", 3));
+        System.out.println(jedis.hincrByFloat("key_hash", "field_2", 3.5));
+        System.out.println(jedis.hgetAll("key_hash"));
     }
 
 
@@ -112,7 +143,7 @@ public class D1_BasicTypes extends BasicTest {
         // del 命令可以删除某个 key
         System.out.println(jedis.del("str3"));
         System.out.println(jedis.keys("str[1-9]"));
-        System.out.println(jedis.dump("str1"));
+        // System.out.println(jedis.dump("str1"));
 
         // exist 检查某个 key 是否存在
         System.out.println(jedis.exists("str1"));
