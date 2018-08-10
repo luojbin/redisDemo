@@ -149,6 +149,19 @@ public class D1_BasicTypes extends BasicTest {
 
     @Test
     public void testZset() {
+        // zadd : zset + add, 在 zset 中添加元素, 需要指定分值
+        System.out.println(jedis.zadd("key_zset", 1, "val1"));
+        System.out.println(jedis.zadd("key_zset", 2, "val2"));
+        System.out.println(jedis.zadd("key_zset", 3, "val3"));
+        System.out.println(jedis.zadd("key_zset", 2.1, "val2.1"));
+        System.out.println(jedis.zadd("key_zset", 1.8, "val1.8"));
+
+        // zrange : zset + range, 根据分值升序排列, 获取序号在闭区间 [a, b] 内的元素, 且 a 必须在 b 前面, 否则为空
+        System.out.println(jedis.zrange("key_zset", 0, -1));
+        System.out.println(jedis.zrange("key_zset", -1, 0));
+
+        // zrevrange : zset reverse range, 根据分值降序排列, 获取 [a, b] 内的元素
+        System.out.println(jedis.zrevrange("key_zset", 0, -1));
     }
 
     @Test
