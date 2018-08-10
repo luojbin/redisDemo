@@ -124,12 +124,31 @@ public class D1_BasicTypes extends BasicTest {
 
     @Test
     public void testSet() {
+        // sadd : set + add , 往集合中添加元素, jedis 中使用变长参数列表, 允许一次添加多个
+        System.out.println(jedis.sadd("key_set", "val1", "val2", "val3"));
 
+        // smembers : set + members, 获取集合中所有元素
+        System.out.println(jedis.smembers("key_set"));
+
+        // sismember : set + isMember, 检查某个元素是否在集合内
+        System.out.println(jedis.sismember("key_set", "val1"));
+        System.out.println(jedis.sismember("key_set", "val4"));
+
+        // scard: set + cardinality, 获取 set 内的元素个数
+        System.out.println(jedis.scard("key_set"));
+
+        // spop: set + pop, 随机弹出 set 中的一个元素
+        System.out.println(jedis.smembers("key_set"));
+        System.out.println(jedis.spop("key_set"));
+        System.out.println(jedis.smembers("key_set"));
+
+        // srandmember : set random member, 随机获取一个元素, 但不弹出
+        System.out.println(jedis.srandmember("key_set"));
+        System.out.println(jedis.smembers("key_set"));
     }
 
     @Test
     public void testZset() {
-
     }
 
     @Test
