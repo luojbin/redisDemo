@@ -15,7 +15,7 @@ import java.util.Set;
 public class D1_BasicTypes extends BasicTest {
 
     @Test
-    public void testConection() {
+    public void testConnection() {
         // 通过 ping 方法测试是否连接上 redis 服务器
         System.out.println(jedis.ping());
     }
@@ -46,6 +46,16 @@ public class D1_BasicTypes extends BasicTest {
         System.out.println("先获取一次: " + jedis.get("key_str_ex2"));
         Thread.sleep(6000);
         System.out.println("6秒后再次获取: " + jedis.get("key_str_ex2"));
+
+        // 如果对一个设置过超时时间的 key 再进行 set 操作, 超时时间将会被取消
+        System.out.println(jedis.set("key_resetEx", "val1"));
+        System.out.println(jedis.expire("key_resetEx", 2));
+        System.out.println("setEx:" + jedis.ttl("key_resetEx"));
+
+        System.out.println(jedis.set("key_resetEx", "val2"));
+        System.out.println("resetEx:" + jedis.ttl("key_resetEx"));
+        Thread.sleep(3000);
+        System.out.println(jedis.get("key_resetEx"));
     }
 
     @Test
@@ -187,6 +197,35 @@ public class D1_BasicTypes extends BasicTest {
         System.out.println(jedis.zrange("key_zset", 0, -1));
         System.out.println(jedis.zrem("key_zset", "val1", "val1.8"));
         System.out.println(jedis.zrange("key_zset", 0, -1));
+    }
+
+    @Test
+    public void testCreateAndDrop() {
+        // redis 的数据结构, 都遵循一个原则, 不存在时创建一个, 当已有元素都弹出后被删除
+        System.out.println("开始: " + jedis.keys("*") + "\n");
+
+        System.out.println(jedis.lpush("key_list", "val1"));
+        System.out.println("lpush后: " + jedis.keys("*"));
+        System.out.println(jedis.lpop("key_list"));
+        System.out.println("lpop后: " + jedis.keys("*") + "\n");
+
+        // hash
+        System.out.println(jedis.hset("key_hash","field1", "val1"));
+        System.out.println("hset后: " + jedis.keys("*"));
+        System.out.println(jedis.hdel("key_hash", "field1"));
+        System.out.println("hdel后: " + jedis.keys("*")+ "\n");
+
+        // set
+        System.out.println(jedis.sadd("key_set", "val1"));
+        System.out.println("sadd后: " + jedis.keys("*"));
+        System.out.println(jedis.spop("key_set"));
+        System.out.println("spop后: " + jedis.keys("*") + "\n");
+
+        // zset
+        System.out.println(jedis.zadd("key_zset", 1,"val1"));
+        System.out.println("sadd后: " + jedis.keys("*"));
+        System.out.println(jedis.zrem("key_zset", "val1"));
+        System.out.println("spop后: " + jedis.keys("*") + "\n");
     }
 
     @Test
