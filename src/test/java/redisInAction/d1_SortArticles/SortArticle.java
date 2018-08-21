@@ -193,4 +193,37 @@ public class SortArticle {
         Set<Tuple> set = jedis.zrevrangeWithScores("zgroup:fruit", 0, -1);
         printArticles(set);
     }
+
+    /**
+     * 命名空间测试, redis 惯例使用冒号分割命名空间,
+     * 如 redis desktop manager 等工具, 在冒号分隔是会折叠相同明名空间的内容
+     */
+    @Test
+    public void testNameSpace() {
+        jedis.set("key-1", "1");
+        jedis.set("key-2", "1");
+        jedis.set("key-3", "1");
+        jedis.set("key-4", "1");
+        jedis.set("key-5", "1");
+
+        jedis.set("key_1", "1");
+        jedis.set("key_2", "1");
+        jedis.set("key_3", "1");
+        jedis.set("key_4", "1");
+        jedis.set("key_5", "1");
+
+        jedis.set("key,1", "1");
+        jedis.set("key,2", "1");
+        jedis.set("key,3", "1");
+        jedis.set("key,4", "1");
+        jedis.set("key,5", "1");
+
+        jedis.set("key:1", "1");
+        jedis.set("key:2", "1");
+        jedis.set("key:3", "1");
+        jedis.set("key:4", "1");
+        jedis.set("key:5", "1");
+
+
+    }
 }
