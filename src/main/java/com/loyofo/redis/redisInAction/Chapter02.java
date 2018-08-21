@@ -14,13 +14,14 @@ public class Chapter02 {
     }
 
     public void run() throws InterruptedException {
-        Jedis conn = new Jedis("localhost");
-        conn.select(15);
+        Jedis conn = new Jedis("47.106.82.153", 6379);
+        conn.auth("luojbin2Redis");
+        conn.select(2);
 
         testLoginCookies(conn);
-        testShopppingCartCookies(conn);
-        testCacheRows(conn);
-        testCacheRequest(conn);
+        // testShopppingCartCookies(conn);
+        // testCacheRows(conn);
+        // testCacheRequest(conn);
     }
 
     public void testLoginCookies(Jedis conn) throws InterruptedException {
@@ -40,15 +41,20 @@ public class Chapter02 {
 
         System.out.println("准备删除所有用户cookie");
         System.out.println("开启一个线程, 晚点再关掉");
+        System.out.println("让我们清除掉所有的登录信息");
+        System.out.println("先启动一个清理线程, 待会再把这个进程结束掉");
 
         CleanSessionsThread thread = new CleanSessionsThread(0);
+        System.out.println("启动线程");
         thread.start();
-        
+        System.out.println("暂停1秒");
+
         System.out.println("主线程暂停1秒");
         Thread.sleep(1000);
 
         System.out.println("退出清理线程");
         thread.quit();
+        System.out.println("暂停2秒");
         System.out.println("主线程暂停1秒");
         Thread.sleep(2000);
 
@@ -259,8 +265,9 @@ public class Chapter02 {
         private boolean quit;
 
         public CleanSessionsThread(int limit) {
-            this.conn = new Jedis("localhost");
-            this.conn.select(15);
+            this.conn = new Jedis("47.106.82.153", 6379);
+            this.conn.auth("luojbin2Redis");
+            this.conn.select(2);
             this.limit = limit;
         }
 
