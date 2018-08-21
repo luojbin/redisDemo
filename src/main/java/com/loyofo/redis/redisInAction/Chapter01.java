@@ -63,9 +63,9 @@ public class Chapter01 {
         // 给文章添加分组标签
         addGroups(conn, articleId, new String[]{"new-group"});
         System.out.println("把文章添加到new-group 分组中, 组内其他文章有:");
+        // ghgh
         articles = getGroupArticles(conn, "new-group", 1);
         printArticles(articles);
-        assert articles.size() >= 1;
     }
 
     /**
