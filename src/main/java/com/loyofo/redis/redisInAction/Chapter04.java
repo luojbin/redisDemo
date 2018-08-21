@@ -25,7 +25,7 @@ public class Chapter04 {
     }
 
     public void testListItem(Jedis conn, boolean nested) {
-        if (!nested){
+        if (!nested) {
             System.out.println("\n----- testListItem -----");
         }
 
@@ -36,7 +36,7 @@ public class Chapter04 {
         Set<String> i = conn.smembers("inventory:" + seller);
 
         System.out.println("The user's inventory has:");
-        for (String member : i){
+        for (String member : i) {
             System.out.println("  " + member);
         }
         assert i.size() > 0;
@@ -48,7 +48,7 @@ public class Chapter04 {
         assert l;
         Set<Tuple> r = conn.zrangeWithScores("market:", 0, -1);
         System.out.println("The market contains:");
-        for (Tuple tuple : r){
+        for (Tuple tuple : r) {
             System.out.println("  " + tuple.getElement() + ", " + tuple.getScore());
         }
         assert r.size() > 0;
@@ -60,9 +60,9 @@ public class Chapter04 {
 
         System.out.println("We need to set up just enough state so a user can buy an item");
         conn.hset("users:userY", "funds", "125");
-        Map<String,String> r = conn.hgetAll("users:userY");
+        Map<String, String> r = conn.hgetAll("users:userY");
         System.out.println("The user has some money:");
-        for (Map.Entry<String,String> entry : r.entrySet()){
+        for (Map.Entry<String, String> entry : r.entrySet()) {
             System.out.println("  " + entry.getKey() + ": " + entry.getValue());
         }
         assert r.size() > 0;
@@ -75,7 +75,7 @@ public class Chapter04 {
         assert p;
         r = conn.hgetAll("users:userY");
         System.out.println("Their money is now:");
-        for (Map.Entry<String,String> entry : r.entrySet()){
+        for (Map.Entry<String, String> entry : r.entrySet()) {
             System.out.println("  " + entry.getKey() + ": " + entry.getValue());
         }
         assert r.size() > 0;
@@ -83,7 +83,7 @@ public class Chapter04 {
         String buyer = "userY";
         Set<String> i = conn.smembers("inventory:" + buyer);
         System.out.println("Their inventory is now:");
-        for (String member : i){
+        for (String member : i) {
             System.out.println("  " + member);
         }
         assert i.size() > 0;
@@ -105,7 +105,7 @@ public class Chapter04 {
 
         while (System.currentTimeMillis() < end) {
             conn.watch(inventory);
-            if (!conn.sismember(inventory, itemId)){
+            if (!conn.sismember(inventory, itemId)) {
                 conn.unwatch();
                 return false;
             }
@@ -116,7 +116,7 @@ public class Chapter04 {
             List<Object> results = trans.exec();
             // null response indicates that the transaction was aborted due to
             // the watched key changing.
-            if (results == null){
+            if (results == null) {
                 continue;
             }
             return true;
@@ -133,25 +133,25 @@ public class Chapter04 {
         String inventory = "inventory:" + buyerId;
         long end = System.currentTimeMillis() + 10000;
 
-        while (System.currentTimeMillis() < end){
+        while (System.currentTimeMillis() < end) {
             conn.watch("market:", buyer);
 
             double price = conn.zscore("market:", item);
             double funds = Double.parseDouble(conn.hget(buyer, "funds"));
-            if (price != lprice || price > funds){
+            if (price != lprice || price > funds) {
                 conn.unwatch();
                 return false;
             }
 
             Transaction trans = conn.multi();
-            trans.hincrBy(seller, "funds", (int)price);
-            trans.hincrBy(buyer, "funds", (int)-price);
+            trans.hincrBy(seller, "funds", (int) price);
+            trans.hincrBy(buyer, "funds", (int) -price);
             trans.sadd(inventory, itemId);
             trans.zrem("market:", item);
             List<Object> results = trans.exec();
             // null response indicates that the transaction was aborted due to
             // the watched key changing.
-            if (results == null){
+            if (results == null) {
                 continue;
             }
             return true;
@@ -161,30 +161,30 @@ public class Chapter04 {
     }
 
     public void benchmarkUpdateToken(Jedis conn, int duration) {
-        try{
+        try {
             @SuppressWarnings("rawtypes")
             Class[] args = new Class[]{
-                Jedis.class, String.class, String.class, String.class};
+                    Jedis.class, String.class, String.class, String.class};
             Method[] methods = new Method[]{
-                this.getClass().getDeclaredMethod("updateToken", args),
-                this.getClass().getDeclaredMethod("updateTokenPipeline", args),
+                    this.getClass().getDeclaredMethod("updateToken", args),
+                    this.getClass().getDeclaredMethod("updateTokenPipeline", args),
             };
-            for (Method method : methods){
+            for (Method method : methods) {
                 int count = 0;
                 long start = System.currentTimeMillis();
                 long end = start + (duration * 1000);
-                while (System.currentTimeMillis() < end){
+                while (System.currentTimeMillis() < end) {
                     count++;
                     method.invoke(this, conn, "token", "user", "item");
                 }
                 long delta = System.currentTimeMillis() - start;
                 System.out.println(
                         method.getName() + ' ' +
-                        count + ' ' +
-                        (delta / 1000) + ' ' +
-                        (count / (delta / 1000)));
+                                count + ' ' +
+                                (delta / 1000) + ' ' +
+                                (count / (delta / 1000)));
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -206,7 +206,7 @@ public class Chapter04 {
         pipe.multi();
         pipe.hset("login:", token, user);
         pipe.zadd("recent:", timestamp, token);
-        if (item != null){
+        if (item != null) {
             pipe.zadd("viewed:" + token, timestamp, item);
             pipe.zremrangeByRank("viewed:" + token, 0, -26);
             pipe.zincrby("viewed:", -1, item);

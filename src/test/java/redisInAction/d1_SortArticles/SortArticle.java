@@ -223,7 +223,5 @@ public class SortArticle {
         jedis.set("key:3", "1");
         jedis.set("key:4", "1");
         jedis.set("key:5", "1");
-
-
     }
 }
