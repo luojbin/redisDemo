@@ -6,7 +6,7 @@ import redis.clients.jedis.Jedis;
 /**
  * @author luojbin
  * @version 1.0
- * @time 2018-08-21
+ * @create 2018-08-21
  */
 public class Server {
     protected Jedis jedis;
@@ -24,4 +24,10 @@ public class Server {
     public boolean check_token(String token){
         return false;
     }
+
+    public void update_token(String token, String user, String item){
+        // 更新
+    }
+
+
 }

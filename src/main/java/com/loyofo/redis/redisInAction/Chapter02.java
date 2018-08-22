@@ -9,8 +9,7 @@ import java.net.URL;
 import java.util.*;
 
 public class Chapter02 {
-    public static final void main(String[] args)
-            throws InterruptedException {
+    public static final void main(String[] args) throws InterruptedException {
         new Chapter02().run();
     }
 
@@ -29,30 +28,36 @@ public class Chapter02 {
         String token = UUID.randomUUID().toString();
 
         updateToken(conn, token, "username", "itemX");
-        System.out.println("We just logged-in/updated token: " + token);
-        System.out.println("For user: 'username'");
+        System.out.println("我们刚刚登录/更新了token: " + token);
+        System.out.println("当前用户为: 'username'");
         System.out.println();
 
-        System.out.println("What username do we get when we look-up that token?");
+        System.out.print("通过 token 找到用户: ");
         String r = checkToken(conn, token);
         System.out.println(r);
         System.out.println();
         assert r != null;
 
-        System.out.println("Let's drop the maximum number of cookies to 0 to clean them out");
-        System.out.println("We will start a thread to do the cleaning, while we stop it later");
+        System.out.println("准备删除所有用户cookie");
+        System.out.println("开启一个线程, 晚点再关掉");
 
         CleanSessionsThread thread = new CleanSessionsThread(0);
         thread.start();
+        
+        System.out.println("主线程暂停1秒");
         Thread.sleep(1000);
+
+        System.out.println("退出清理线程");
         thread.quit();
+        System.out.println("主线程暂停1秒");
         Thread.sleep(2000);
+
         if (thread.isAlive()) {
-            throw new RuntimeException("The clean sessions thread is still alive?!?");
+            throw new RuntimeException("清理线程还没结束?");
         }
 
         long s = conn.hlen("login:");
-        System.out.println("The current number of sessions still available is: " + s);
+        System.out.println("当前在线用户数量为: " + s);
         assert s == 0;
     }
 
@@ -335,8 +340,7 @@ public class Chapter02 {
         }
     }
 
-    public class CacheRowsThread
-            extends Thread {
+    public class CacheRowsThread extends Thread {
         private Jedis conn;
         private boolean quit;
 
