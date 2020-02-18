@@ -83,7 +83,74 @@
             <artifactId>commons-csv</artifactId>
             <version>20070730</version>
         </dependency>
-
-
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <path>/${project.name}</path>
+                    <uriEncoding>UTF-8</uriEncoding>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    <filters>
+        <filter>conf/conf-${deploy.env}.properties</filter>
+    </filters>
+
+    <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <excludes>
+                <exclude>template/*</exclude>
+            </excludes>
+            <filtering>true</filtering>
+        </resource>
+
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>template/*</include>
+            </includes>
+        </resource>
+    </resources>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <deploy.env>dev</deploy.env>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>test</id>
+            <properties>
+                <deploy.env>test</deploy.env>
+            </properties>
+        </profile>
+        <profile>
+            <id>product</id>
+            <properties>
+                <deploy.env>product</deploy.env>
+            </properties>
+        </profile>
+        <profile>
+            <id>productPre</id>
+            <properties>
+                <deploy.env>productPre</deploy.env>
+            </properties>
+        </profile>
+    </profiles>
+
 </project>
